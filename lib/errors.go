@@ -8,7 +8,7 @@ var (
 	ErrJWTClaimsNotFoundInContext      = errors.New("jwt claims not found in context")
 
 	// user.service
-	ErrIncorrectPassword    = errors.New("incorrect password")
+	ErrUserNotFound         = errors.New("user not found")
 	ErrSigningMethodInvalid = errors.New("signing method invalid")
 	ErrUnauthorizedRequest  = errors.New("unauthorized request")
 )

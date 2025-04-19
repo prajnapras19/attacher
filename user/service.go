@@ -9,6 +9,7 @@ import (
 )
 
 type Service interface {
+	Login(req *LoginRequest) (*LoginResponse, error)
 	ValidateToken(tokenString string) (*lib.JWTClaims, error)
 }
 
@@ -25,6 +26,19 @@ func NewService(
 		cfg:            cfg,
 		userRepository: userRepository,
 	}
+}
+
+func (s *service) Login(req *LoginRequest) (*LoginResponse, error) {
+	user, err := s.userRepository.GetUserByUsername(req.Username)
+	if err != nil {
+		return nil, lib.ErrUserNotFound
+	}
+	if req.Password != user.Password {
+		return nil, lib.ErrUserNotFound
+	}
+	return &LoginResponse{
+		Token: s.GenerateToken(user.Username, user.Serial),
+	}, nil
 }
 
 func (s *service) GenerateToken(username string, serial string) string {
