@@ -33,7 +33,7 @@ func (s *service) Login(req *LoginRequest) (*LoginResponse, error) {
 	if err != nil {
 		return nil, lib.ErrUserNotFound
 	}
-	if req.Password != user.Password {
+	if req.Password != user.Password { // TODO: change this to hash comparation
 		return nil, lib.ErrUserNotFound
 	}
 	return &LoginResponse{
