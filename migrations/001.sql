@@ -1,8 +1,10 @@
 CREATE TABLE users(
     id BIGINT NOT NULL AUTO_INCREMENT,
+    serial VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    CONSTRAINT UNIQUE (id),
+    CONSTRAINT UNIQUE (username),
+    CONSTRAINT UNIQUE (serial),
     CONSTRAINT PRIMARY KEY (id)
 );
 
