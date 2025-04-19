@@ -2,8 +2,13 @@ package api
 
 import (
 	"errors"
+	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prajnapras19/attacher/constants"
+	"github.com/prajnapras19/attacher/lib"
+	"github.com/prajnapras19/attacher/user"
 )
 
 var (
@@ -22,6 +27,32 @@ func CORSMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(204)
 			return
 		}
+
+		c.Next()
+	}
+}
+
+func JWTTokenMiddleware(userService user.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authorizationHeader := c.GetHeader("Authorization")
+		if authorizationHeader == "" {
+			c.JSON(http.StatusUnauthorized, lib.BaseResponse{
+				Message: ErrUnauthorizedRequest.Error(),
+			})
+			c.Abort()
+			return
+		}
+		tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
+		claims, err := userService.ValidateToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, lib.BaseResponse{
+				Message: err.Error(),
+			})
+			c.Abort()
+			return
+		}
+
+		c.Set(constants.JWTClaims, claims)
 
 		c.Next()
 	}

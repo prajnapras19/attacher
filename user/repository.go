@@ -6,6 +6,7 @@ import (
 )
 
 type Repository interface {
+	GetUserByUsername(username string) (*User, error)
 }
 
 type repository struct {
@@ -21,4 +22,13 @@ func NewRepository(
 		cfg: cfg,
 		db:  db,
 	}
+}
+
+func (r *repository) GetUserByUsername(username string) (*User, error) {
+	var res User
+	err := r.db.Model(&User{}).Where("username = ?", username).First(&res).Error
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }

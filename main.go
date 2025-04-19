@@ -34,7 +34,7 @@ func main() {
 
 	router.GET("/_health", handler.HealthCheck)
 
-	//apiV1 := router.Group("/api/v1")
+	router.Use(api.JWTTokenMiddleware(userService))
 
 	router.Run(fmt.Sprintf(":%d", cfg.RESTPort))
 }
