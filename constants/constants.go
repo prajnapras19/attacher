@@ -5,7 +5,10 @@ const (
 	Username  = "username"
 	Password  = "password"
 
-	LoginPage = "login.html"
-	Error     = "error"
-	Token     = "token"
+	LoginPage    = "login.html"
+	ListFilePage = "files.html"
+	Error        = "error"
+	Token        = "token"
+	Attachments  = "attachments"
+	Serial       = "serial"
 )

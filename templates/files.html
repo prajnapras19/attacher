@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>List Files</title>
+    </head>
+    <body>
+        <h1>Files</h1>
+        {{ if .error }}
+            <p>Error: {{ .error }}</p>
+        {{ end }}
+        {{ range .attachments }}
+            <ul>
+                <li>
+                    <a href="{{ .Link }}">{{ .Name }}</a>
+                </li>
+            </ul>
+        {{ end }}
+    </body>
+</html>

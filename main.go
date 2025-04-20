@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/prajnapras19/attacher/api"
+	"github.com/prajnapras19/attacher/attachment"
 	"github.com/prajnapras19/attacher/client/mysql"
 	"github.com/prajnapras19/attacher/config"
 	"github.com/prajnapras19/attacher/user"
@@ -16,14 +17,17 @@ func main() {
 
 	// repositories
 	userRepository := user.NewRepository(cfg, dbmysql.GetDB())
+	attachmentRepository := attachment.NewRepository(cfg, dbmysql.GetDB())
 
 	// services
 	userService := user.NewService(cfg, userRepository)
+	attachmentService := attachment.NewService(cfg, attachmentRepository)
 
 	// handlers
 	handler := api.NewHandler(
 		cfg,
 		userService,
+		attachmentService,
 	)
 
 	// routes
@@ -38,7 +42,8 @@ func main() {
 	router.POST("/login", handler.DoLogin)
 
 	router.Use(api.JWTTokenMiddleware(userService))
-	router.GET("", handler.HealthCheck) // TODO
+	router.GET("", handler.ListActiveFiles)
+	router.GET("/attachments/:serial", handler.DownloadAttachment)
 
 	router.Run(fmt.Sprintf(":%d", cfg.RESTPort))
 }
