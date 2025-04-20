@@ -11,8 +11,8 @@ CREATE TABLE users(
 CREATE TABLE attachments(
     id BIGINT NOT NULL AUTO_INCREMENT,
     serial VARCHAR(255) NOT NULL,
+    path TEXT,
     name VARCHAR(255) NOT NULL,
-    link TEXT,
     is_active TINYINT(1) NOT NULL DEFAULT 0,
     user_id BIGINT NOT NULL,
     CONSTRAINT FOREIGN KEY (id) REFERENCES users(id),
