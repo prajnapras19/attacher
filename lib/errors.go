@@ -19,5 +19,6 @@ var (
 
 	// handler
 	ErrFileCannotBeParsed  = errors.New("file cannot be parsed")
+	ErrInvalidRowLength    = errors.New("invalid row length")
 	ErrInvalidColumnLength = errors.New("invalid column length")
 )

@@ -1,6 +1,8 @@
 package attachment
 
 import (
+	"errors"
+
 	"github.com/prajnapras19/attacher/config"
 	"gorm.io/gorm"
 )
@@ -8,6 +10,7 @@ import (
 type Repository interface {
 	GetAllActiveAttachmentsByUserID(userID uint) ([]*Attachment, error)
 	GetActiveAttachmentByUserIDAndSerial(userID uint, serial string) (*Attachment, error)
+	UpsertAttachment(attachment Attachment) error
 }
 
 type repository struct {
@@ -41,4 +44,17 @@ func (r *repository) GetActiveAttachmentByUserIDAndSerial(userID uint, serial st
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (r *repository) UpsertAttachment(attachment Attachment) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&attachment).Where("id = ?", attachment.ID).First(&Attachment{}).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return tx.Create(&attachment).Error
+			}
+			return err
+		}
+		return tx.Model(&attachment).Where("id = ?", attachment.ID).Updates(&attachment).Error
+	})
 }

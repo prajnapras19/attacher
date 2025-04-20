@@ -24,6 +24,8 @@ type Handler interface {
 
 	GetUpsertUserWithFilePage(*gin.Context)
 	UpsertUserWithFile(*gin.Context)
+	GetUpsertAttachmentWithFilePage(*gin.Context)
+	UpsertAttachmentWithFile(*gin.Context)
 }
 
 type handler struct {
@@ -168,7 +170,7 @@ func (h *handler) UpsertUserWithFile(c *gin.Context) {
 	// ignore header
 	if len(records) < 2 {
 		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
-			constants.Error: lib.ErrInvalidColumnLength.Error(),
+			constants.Error: lib.ErrInvalidRowLength.Error(),
 		})
 		return
 	}
@@ -204,6 +206,97 @@ func (h *handler) UpsertUserWithFile(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, constants.UpsertUserPage, gin.H{
+		constants.Success: constants.Success,
+	})
+}
+
+func (h *handler) GetUpsertAttachmentWithFilePage(c *gin.Context) {
+	c.HTML(http.StatusOK, constants.UpsertAttachmentPage, nil)
+}
+
+func (h *handler) UpsertAttachmentWithFile(c *gin.Context) {
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+			constants.Error: err.Error(),
+		})
+		return
+	}
+
+	files := form.File["file"]
+	if len(files) != 1 {
+		c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+			constants.Error: lib.ErrFileCannotBeParsed.Error(),
+		})
+		return
+	}
+
+	file, err := files[0].Open()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+			constants.Error: lib.ErrFileCannotBeParsed.Error(),
+		})
+		return
+	}
+	defer file.Close()
+
+	records, err := csv.NewReader(file).ReadAll()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+			constants.Error: err.Error(),
+		})
+		return
+	}
+
+	// format: id, user_id, name, path, is_active
+	// ignore header
+	if len(records) < 2 {
+		c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+			constants.Error: lib.ErrInvalidRowLength.Error(),
+		})
+		return
+	}
+
+	for _, record := range records[1:] {
+		if len(record) < 5 {
+			c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+				constants.Error: lib.ErrInvalidColumnLength.Error(),
+			})
+			return
+		}
+
+		id, err := strconv.ParseUint(record[0], 10, 32)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+				constants.Error: err.Error(),
+			})
+			return
+		}
+		userID, err := strconv.ParseUint(record[1], 10, 32)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, constants.UpsertAttachmentPage, gin.H{
+				constants.Error: err.Error(),
+			})
+			return
+		}
+
+		err = h.attachmentService.UpsertAttachment(attachment.Attachment{
+			ID:       uint(id),
+			UserID:   uint(userID),
+			Name:     record[2],
+			Path:     record[3],
+			IsActive: record[4] == "TRUE",
+		})
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, constants.UpsertAttachmentPage, gin.H{
+				constants.Error: err.Error(),
+			})
+			return
+		}
+	}
+
+	c.HTML(http.StatusOK, constants.UpsertAttachmentPage, gin.H{
 		constants.Success: constants.Success,
 	})
 }

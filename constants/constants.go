@@ -5,9 +5,10 @@ const (
 	Username  = "username"
 	Password  = "password"
 
-	LoginPage      = "login.html"
-	ListFilePage   = "files.html"
-	UpsertUserPage = "upsert-user.html"
+	LoginPage            = "login.html"
+	ListFilePage         = "files.html"
+	UpsertUserPage       = "upsert-user.html"
+	UpsertAttachmentPage = "upsert-attachment.html"
 
 	Error       = "error"
 	Success     = "success"

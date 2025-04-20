@@ -10,6 +10,7 @@ import (
 type Service interface {
 	GetAllActiveAttachmentsByUserID(userID uint) ([]*Attachment, error)
 	GetActiveAttachmentByUserIDAndSerial(userID uint, serial string) (*Attachment, error)
+	UpsertAttachment(attachment Attachment) error
 }
 
 type service struct {
@@ -44,4 +45,8 @@ func (s *service) GetActiveAttachmentByUserIDAndSerial(userID uint, serial strin
 		return nil, lib.ErrAttachmentNotFound
 	}
 	return res, nil
+}
+
+func (s *service) UpsertAttachment(attachment Attachment) error {
+	return s.attachmentRepository.UpsertAttachment(attachment)
 }

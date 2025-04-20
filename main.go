@@ -45,6 +45,8 @@ func main() {
 	adminRouter.Use(api.JWTSystenTokenMiddleware(userService))
 	adminRouter.GET("/upsert-user", handler.GetUpsertUserWithFilePage)
 	adminRouter.POST("/upsert-user", handler.UpsertUserWithFile)
+	adminRouter.GET("/upsert-attachment", handler.GetUpsertAttachmentWithFilePage)
+	adminRouter.POST("/upsert-attachment", handler.UpsertAttachmentWithFile)
 
 	router.Use(api.JWTTokenMiddleware(userService))
 	router.GET("", handler.ListActiveFiles)
