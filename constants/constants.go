@@ -11,4 +11,5 @@ const (
 	Token        = "token"
 	Attachments  = "attachments"
 	Serial       = "serial"
+	System       = "SYSTEM"
 )

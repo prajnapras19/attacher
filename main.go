@@ -45,5 +45,8 @@ func main() {
 	router.GET("", handler.ListActiveFiles)
 	router.GET("/attachments/:serial", handler.DownloadAttachment)
 
+	adminRouter := router.Group("/admin")
+	adminRouter.Use(api.JWTSystenTokenMiddleware())
+
 	router.Run(fmt.Sprintf(":%d", cfg.RESTPort))
 }

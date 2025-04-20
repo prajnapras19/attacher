@@ -7,12 +7,14 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/prajnapras19/attacher/config"
+	"github.com/prajnapras19/attacher/constants"
 	"github.com/prajnapras19/attacher/lib"
 )
 
 type Service interface {
 	Login(req *LoginRequest) (*LoginResponse, error)
 	ValidateToken(tokenString string) (*lib.JWTClaims, error)
+	ValidateSystemToken(tokenString string) (*lib.JWTClaims, error)
 }
 
 type service struct {
@@ -31,6 +33,12 @@ func NewService(
 }
 
 func (s *service) Login(req *LoginRequest) (*LoginResponse, error) {
+	if req.Username == constants.System && req.Password == s.cfg.SystemPassword {
+		return &LoginResponse{
+			Token: s.GenerateToken(0, constants.System, constants.System),
+		}, nil
+	}
+
 	user, err := s.userRepository.GetUserByUsername(req.Username)
 	if err != nil {
 		return nil, lib.ErrUserNotFound
@@ -101,4 +109,25 @@ func (s *service) ValidateToken(tokenString string) (*lib.JWTClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func (s *service) ValidateSystemToken(tokenString string) (*lib.JWTClaims, error) {
+	claims := &lib.JWTClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, s.VerifyToken)
+	if err != nil {
+		return nil, lib.ErrUnauthorizedRequest
+	}
+	if !token.Valid {
+		return nil, lib.ErrUnauthorizedRequest
+	}
+	claims, ok := token.Claims.(*lib.JWTClaims)
+	if !ok {
+		return nil, lib.ErrUnauthorizedRequest
+	}
+
+	// check if it's system
+	if claims.ID == 0 && claims.Username == constants.System && claims.Serial == constants.System {
+		return claims, nil
+	}
+	return nil, lib.ErrUnauthorizedRequest
 }

@@ -55,3 +55,28 @@ func JWTTokenMiddleware(userService user.Service) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func JWTSystenTokenMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString, err := c.Cookie(constants.Token)
+		if err != nil || tokenString == "" {
+			c.JSON(http.StatusUnauthorized, lib.BaseResponse{
+				Message: ErrUnauthorizedRequest.Error(),
+			})
+			c.Abort()
+			return
+		}
+		claims, err := userService.ValidateSystemToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, lib.BaseResponse{
+				Message: err.Error(),
+			})
+			c.Abort()
+			return
+		}
+
+		c.Set(constants.JWTClaims, claims)
+
+		c.Next()
+	}
+}

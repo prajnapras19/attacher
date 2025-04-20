@@ -11,9 +11,10 @@ import (
 )
 
 type Config struct {
-	RESTPort     int    `envconfig:"HTTP_PORT" default:"8080"`
-	AllowCORS    bool   `envconfig:"ALLOW_CORS" default:"true"`
-	CookieDomain string `envconfig:"COOKIE_DOMAIN" default:"localhost"`
+	RESTPort       int    `envconfig:"HTTP_PORT" default:"8080"`
+	AllowCORS      bool   `envconfig:"ALLOW_CORS" default:"true"`
+	CookieDomain   string `envconfig:"COOKIE_DOMAIN" default:"localhost"`
+	SystemPassword string `envconfig:"SYSTEM_PASSWORD" default:""`
 
 	MySQLConfig MySQLConfig
 	AuthConfig  AuthConfig
