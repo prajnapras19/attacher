@@ -43,7 +43,8 @@ func main() {
 
 	adminRouter := router.Group("/admin")
 	adminRouter.Use(api.JWTSystenTokenMiddleware(userService))
-	adminRouter.GET("", handler.HealthCheck)
+	adminRouter.GET("/upsert-user", handler.GetUpsertUserWithFilePage)
+	adminRouter.POST("/upsert-user", handler.UpsertUserWithFile)
 
 	router.Use(api.JWTTokenMiddleware(userService))
 	router.GET("", handler.ListActiveFiles)

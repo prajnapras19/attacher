@@ -16,4 +16,8 @@ var (
 	// attachment.service
 	ErrFailedToGetAttachments = errors.New("failed to get attachments")
 	ErrAttachmentNotFound     = errors.New("attachment not found")
+
+	// handler
+	ErrFileCannotBeParsed  = errors.New("file cannot be parsed")
+	ErrInvalidColumnLength = errors.New("invalid column length")
 )

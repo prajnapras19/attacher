@@ -15,6 +15,7 @@ type Service interface {
 	Login(req *LoginRequest) (*LoginResponse, error)
 	ValidateToken(tokenString string) (*lib.JWTClaims, error)
 	ValidateSystemToken(tokenString string) (*lib.JWTClaims, error)
+	UpsertUser(user User) error
 }
 
 type service struct {
@@ -130,4 +131,8 @@ func (s *service) ValidateSystemToken(tokenString string) (*lib.JWTClaims, error
 		return claims, nil
 	}
 	return nil, lib.ErrUnauthorizedRequest
+}
+
+func (s *service) UpsertUser(user User) error {
+	return s.userRepository.UpsertUser(user)
 }

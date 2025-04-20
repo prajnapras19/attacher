@@ -1,12 +1,15 @@
 package user
 
 import (
+	"errors"
+
 	"github.com/prajnapras19/attacher/config"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	GetUserByUsername(username string) (*User, error)
+	UpsertUser(user User) error
 }
 
 type repository struct {
@@ -31,4 +34,17 @@ func (r *repository) GetUserByUsername(username string) (*User, error) {
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (r *repository) UpsertUser(user User) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&user).Where("id = ?", user.ID).First(&User{}).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return tx.Create(&user).Error
+			}
+			return err
+		}
+		return tx.Model(&user).Where("id = ?", user.ID).Updates(&user).Error
+	})
 }

@@ -1,9 +1,11 @@
 package api
 
 import (
+	"encoding/csv"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prajnapras19/attacher/attachment"
@@ -19,6 +21,9 @@ type Handler interface {
 	DoLogin(*gin.Context)
 	ListActiveFiles(*gin.Context)
 	DownloadAttachment(*gin.Context)
+
+	GetUpsertUserWithFilePage(*gin.Context)
+	UpsertUserWithFile(*gin.Context)
 }
 
 type handler struct {
@@ -119,4 +124,86 @@ func (h *handler) DownloadAttachment(c *gin.Context) {
 
 	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(res.Path))
 	c.Data(http.StatusOK, "application/octet-stream", content)
+}
+
+func (h *handler) GetUpsertUserWithFilePage(c *gin.Context) {
+	c.HTML(http.StatusOK, constants.UpsertUserPage, nil)
+}
+
+func (h *handler) UpsertUserWithFile(c *gin.Context) {
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+			constants.Error: err.Error(),
+		})
+		return
+	}
+
+	files := form.File["file"]
+	if len(files) != 1 {
+		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+			constants.Error: lib.ErrFileCannotBeParsed.Error(),
+		})
+		return
+	}
+
+	file, err := files[0].Open()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+			constants.Error: lib.ErrFileCannotBeParsed.Error(),
+		})
+		return
+	}
+	defer file.Close()
+
+	records, err := csv.NewReader(file).ReadAll()
+	if err != nil {
+		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+			constants.Error: err.Error(),
+		})
+		return
+	}
+
+	// format: id, username, password
+	// ignore header
+	if len(records) < 2 {
+		c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+			constants.Error: lib.ErrInvalidColumnLength.Error(),
+		})
+		return
+	}
+
+	for _, record := range records[1:] {
+		if len(record) < 3 {
+			c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+				constants.Error: lib.ErrInvalidColumnLength.Error(),
+			})
+			return
+		}
+
+		id, err := strconv.ParseUint(record[0], 10, 32)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, constants.UpsertUserPage, gin.H{
+				constants.Error: err.Error(),
+			})
+			return
+		}
+
+		err = h.userService.UpsertUser(user.User{
+			ID:       uint(id),
+			Username: record[1],
+			Password: record[2],
+		})
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, constants.UpsertUserPage, gin.H{
+				constants.Error: err.Error(),
+			})
+			return
+		}
+	}
+
+	c.HTML(http.StatusOK, constants.UpsertUserPage, gin.H{
+		constants.Success: constants.Success,
+	})
 }
