@@ -21,8 +21,9 @@ services:
   
   app:
     restart: always
-    build:
-      context: .
+    #build:
+    #  context: .
+    image: prajnapras19/attacher:1.0.0
     environment:
       MYSQL_USER: attacher
       MYSQL_PASSWORD: TODO
