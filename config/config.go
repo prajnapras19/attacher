@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -40,7 +41,8 @@ type MySQLConfig struct {
 
 func Get() *Config {
 	err := godotenv.Load()
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
+		// only load if file exists
 		log.Fatalf("[config] error loading .env file: %s", err.Error())
 	}
 	cfg := Config{}
