@@ -41,12 +41,13 @@ func main() {
 	router.GET("/login", handler.GetLoginPage)
 	router.POST("/login", handler.DoLogin)
 
+	adminRouter := router.Group("/admin")
+	adminRouter.Use(api.JWTSystenTokenMiddleware(userService))
+	adminRouter.GET("", handler.HealthCheck)
+
 	router.Use(api.JWTTokenMiddleware(userService))
 	router.GET("", handler.ListActiveFiles)
 	router.GET("/attachments/:serial", handler.DownloadAttachment)
-
-	adminRouter := router.Group("/admin")
-	adminRouter.Use(api.JWTSystenTokenMiddleware())
 
 	router.Run(fmt.Sprintf(":%d", cfg.RESTPort))
 }

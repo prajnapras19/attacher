@@ -56,7 +56,7 @@ func JWTTokenMiddleware(userService user.Service) gin.HandlerFunc {
 	}
 }
 
-func JWTSystenTokenMiddleware() gin.HandlerFunc {
+func JWTSystenTokenMiddleware(userService user.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := c.Cookie(constants.Token)
 		if err != nil || tokenString == "" {
