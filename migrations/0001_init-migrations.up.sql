@@ -20,7 +20,6 @@ CREATE TABLE attachments(
   CONSTRAINT PRIMARY KEY (id)
 );
 
-DELIMITER ;;
 CREATE TRIGGER `users_before_insert` 
 BEFORE INSERT ON `users` FOR EACH ROW 
 BEGIN
@@ -28,25 +27,20 @@ BEGIN
     SET NEW.serial = SHA2(RAND(), 256);
     SET NEW.password = SHA2(NEW.password, 256);
   END IF;
-END;;
-DELIMITER ;
+END;
 
-DELIMITER ;;
 CREATE TRIGGER `users_before_update` 
 BEFORE UPDATE ON `users` FOR EACH ROW
 BEGIN
   IF (OLD.password <> NEW.password) THEN
     SET NEW.password = SHA2(NEW.password, 256);
   END IF;
-END;;
-DELIMITER ;
+END;
 
-DELIMITER ;;
 CREATE TRIGGER `attachments_before_insert` 
 BEFORE INSERT ON `attachments` FOR EACH ROW 
 BEGIN
   IF NEW.serial IS NULL OR NEW.serial = '' THEN
     SET NEW.serial = SHA2(RAND(), 256);
   END IF;
-END;;
-DELIMITER ;
+END;

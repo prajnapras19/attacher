@@ -1,0 +1,43 @@
+services:
+  mysql:
+    restart: always
+    image: mysql:8.0
+    environment:
+      MYSQL_USER: attacher
+      MYSQL_PASSWORD: TODO
+      MYSQL_DATABASE: attacher
+      MYSQL_RANDOM_ROOT_PASSWORD: true
+      MYSQL_LOG_BIN_TRUST_FUNCTION_CREATORS: 1
+    volumes:
+      - ./db:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - private
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1G"
+        max-file: "3"
+  
+  app:
+    restart: always
+    build:
+      context: .
+    environment:
+      MYSQL_USER: attacher
+      MYSQL_PASSWORD: TODO
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: attacher
+      JWT_SIGNATURE_KEY: TODO
+      COOKIE_DOMAIN: localhost
+      SYSTEM_PASSWORD: TODO
+      MYSQL_MIGRATIONS_FOLDER: migrations
+    volumes:
+      - ./data:/data
+    ports:
+      - 80:8080
+    networks:
+      - private
+
+networks:
+  private:
