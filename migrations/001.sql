@@ -15,7 +15,7 @@ CREATE TABLE attachments(
   name VARCHAR(255) NOT NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 0,
   user_id BIGINT NOT NULL,
-  CONSTRAINT FOREIGN KEY (id) REFERENCES users(id),
+  CONSTRAINT FOREIGN KEY (user_id) REFERENCES users(id),
   CONSTRAINT UNIQUE (serial),
   CONSTRAINT PRIMARY KEY (id)
 );
@@ -45,8 +45,8 @@ DELIMITER ;;
 CREATE TRIGGER `attachments_before_insert` 
 BEFORE INSERT ON `attachments` FOR EACH ROW 
 BEGIN
-  IF NEW.id IS NULL THEN
-    SET NEW.id = uuid();
+  IF NEW.serial IS NULL THEN
+    SET NEW.serial = uuid();
   END IF;
 END;;
 DELIMITER ;
