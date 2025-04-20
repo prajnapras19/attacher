@@ -14,8 +14,6 @@ See `docker-compose.yml` file, adjust environment variables to your need, and ru
 docker compose up -d
 ```
 
-Migrate the database in `migrations` folder, and you're all set.
-
 It is preferable to also define the attached volume, so that we can transfer the file from the volume.
 
 ## Bulk Upsert
