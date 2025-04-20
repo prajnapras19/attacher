@@ -9,6 +9,7 @@ import (
 // TODO: add more claims
 type JWTClaims struct {
 	jwt.StandardClaims
+	ID       uint   `json:"id" binding:"required"`
 	Username string `json:"username" binding:"required"`
 	Serial   string `json:"serial" binding:"required"`
 }

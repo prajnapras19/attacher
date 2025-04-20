@@ -37,11 +37,11 @@ func (s *service) Login(req *LoginRequest) (*LoginResponse, error) {
 		return nil, lib.ErrUserNotFound
 	}
 	return &LoginResponse{
-		Token: s.GenerateToken(user.Username, user.Serial),
+		Token: s.GenerateToken(user.ID, user.Username, user.Serial),
 	}, nil
 }
 
-func (s *service) GenerateToken(username string, serial string) string {
+func (s *service) GenerateToken(id uint, username string, serial string) string {
 	claims := lib.JWTClaims{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    s.cfg.AuthConfig.ApplicationName,
@@ -49,6 +49,7 @@ func (s *service) GenerateToken(username string, serial string) string {
 		},
 		Username: username,
 		Serial:   serial,
+		ID:       id,
 	}
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -87,6 +88,9 @@ func (s *service) ValidateToken(tokenString string) (*lib.JWTClaims, error) {
 		return nil, lib.ErrUnauthorizedRequest
 	}
 	if claimedUser.Serial != claims.Serial {
+		return nil, lib.ErrUnauthorizedRequest
+	}
+	if claimedUser.ID != claims.ID {
 		return nil, lib.ErrUnauthorizedRequest
 	}
 
