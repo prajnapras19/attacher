@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prajnapras19/attacher/constants"
@@ -34,15 +33,14 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func JWTTokenMiddleware(userService user.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authorizationHeader := c.GetHeader("Authorization")
-		if authorizationHeader == "" {
+		tokenString, err := c.Cookie(constants.Token)
+		if err != nil || tokenString == "" {
 			c.JSON(http.StatusUnauthorized, lib.BaseResponse{
 				Message: ErrUnauthorizedRequest.Error(),
 			})
 			c.Abort()
 			return
 		}
-		tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
 		claims, err := userService.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, lib.BaseResponse{

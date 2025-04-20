@@ -28,13 +28,17 @@ func main() {
 
 	// routes
 	router := gin.Default()
+	router.LoadHTMLGlob("./templates/*")
 	if cfg.AllowCORS {
 		router.Use(api.CORSMiddleware())
 	}
 
 	router.GET("/_health", handler.HealthCheck)
+	router.GET("/login", handler.GetLoginPage)
+	router.POST("/login", handler.DoLogin)
 
 	router.Use(api.JWTTokenMiddleware(userService))
+	router.GET("", handler.HealthCheck) // TODO
 
 	router.Run(fmt.Sprintf(":%d", cfg.RESTPort))
 }
