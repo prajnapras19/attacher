@@ -1,6 +1,8 @@
 package user
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -33,7 +35,11 @@ func (s *service) Login(req *LoginRequest) (*LoginResponse, error) {
 	if err != nil {
 		return nil, lib.ErrUserNotFound
 	}
-	if req.Password != user.Password { // TODO: change this to hash comparation
+
+	h := sha256.New()
+	h.Write([]byte(req.Password))
+	hashedPassword := hex.EncodeToString(h.Sum(nil))
+	if hashedPassword != user.Password {
 		return nil, lib.ErrUserNotFound
 	}
 	return &LoginResponse{
