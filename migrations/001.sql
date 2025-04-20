@@ -24,8 +24,8 @@ DELIMITER ;;
 CREATE TRIGGER `users_before_insert` 
 BEFORE INSERT ON `users` FOR EACH ROW 
 BEGIN
-  IF NEW.serial IS NULL THEN
-    SET NEW.serial = uuid();
+  IF NEW.serial IS NULL OR NEW.serial = '' THEN
+    SET NEW.serial = SHA2(RAND(), 256);
     SET NEW.password = SHA2(NEW.password, 256);
   END IF;
 END;;
@@ -45,8 +45,8 @@ DELIMITER ;;
 CREATE TRIGGER `attachments_before_insert` 
 BEFORE INSERT ON `attachments` FOR EACH ROW 
 BEGIN
-  IF NEW.serial IS NULL THEN
-    SET NEW.serial = uuid();
+  IF NEW.serial IS NULL OR NEW.serial = '' THEN
+    SET NEW.serial = SHA2(RAND(), 256);
   END IF;
 END;;
 DELIMITER ;
